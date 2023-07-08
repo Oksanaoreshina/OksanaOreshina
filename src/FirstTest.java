@@ -14,55 +14,90 @@ import java.net.URL;
 
 public class FirstTest {
     private AppiumDriver driver;
-    @Before
-    public void setUp() throws Exception
-    {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("platformName","Android");
-        capabilities.setCapability("deviceName","AndroidTestDevice");
-        capabilities.setCapability("platformVersion","8.0");
-        capabilities.setCapability("automationName","Appium");
-        capabilities.setCapability("appPackage","org.wikipedia");
-        capabilities.setCapability("appActivity",".main.MainActivity");
-        capabilities.setCapability("app","C:/Users/79651/Desktop/javaAppiumAvtomation/javaAppiumAvtomation/apks/org.wikipedia_50444_apps.evozi.com.apk");
 
-        driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"),capabilities );
+    @Before
+    public void setUp() throws Exception {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("platformName", "Android");
+        capabilities.setCapability("deviceName", "AndroidTestDevice");
+        capabilities.setCapability("platformVersion", "8.0");
+        capabilities.setCapability("automationName", "Appium");
+        capabilities.setCapability("appPackage", "org.wikipedia");
+        capabilities.setCapability("appActivity", ".main.MainActivity");
+        capabilities.setCapability("app", "C:/Users/79651/Desktop/javaAppiumAvtomation/javaAppiumAvtomation/apks/org.wikipedia_50444_apps.evozi.com.apk");
+
+        driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
     }
+
     @After
-    public void tearDown()
-    {
+    public void tearDown() {
         driver.quit();
     }
+    //@Test
+    //public void firstTest()
+    // {
+    //   waitForElementByXPathAndClick(
+    //         "//*[contains(@text,'Skip')]",
+    //         "Cannot find Skip",
+    //          5
+    //  );
+
+    // waitForElementByXPathAndClick(
+    //         "//*[contains(@text,'Search Wikipedia')]",
+    //        "Cannot find Search Wikipedia",
+    //        5
+    // );
+
+    // waitForElementByXPathAndSendKeys(
+    //         "//*[contains(@text,'Search Wikipedia')]",
+    //        "Java",
+    //        "Cannot find search input",
+    //        5
+    // );
+
+    // waitForElementPresentByXPath(
+    //         "//*[@index = '2']//*[@text = 'Object-oriented programming language']",
+    //         "Cannot find 'Object-oriented programming language' topic searching by 'Java'",
+    //         15
+    //  );
+    // }
+
     @Test
-    public void firstTest()
-    {
-        waitForElementByXPathAndClick(
-                "//*[contains(@text,'Skip')]",
-                "Cannot find Skip",
+    public void testCancelSearch() {
+        waitForElementByIdAndClick(
+                "org.wikipedia:id/fragment_onboarding_skip_button",
+                "Can not find Skip",
                 5
         );
 
-        waitForElementByXPathAndClick(
+        waitForElementByIdAndClick(
+                "org.wikipedia:id/search_container",
+                "Can not find 'search Wikipedia' input",
+                5
+        );
+
+        waitForElementByXPathAndSendKeys(      //оставила поиск и ввод по path, потому что по id тест падает
                 "//*[contains(@text,'Search Wikipedia')]",
-                "Cannot find Search Wikipedia",
+                "Java",
+                "Cannot find search input",
                 5
         );
 
-        waitForElementByXPathAndSendKeys(
-                "//*[contains(@text,'Search Wikipedia')]",
-                "Cat",
-                "Cannot find Cat",
+        waitForElementByIdAndClick(
+                "org.wikipedia:id/search_close_btn",
+                "Can not find X to cancel search",
                 5
         );
 
-        assertElementHasText(
-                "//*[@index = '2']//*[@text = 'British musician (born 1948)']",
-                "Cannot find 'British musician (born 1948)'",
-                15
+        waitForElementNotPresent(
+                "org.wikipedia:id/search_close_btn",
+                "X is still present on the page",
+                5
         );
+
     }
-    private WebElement assertElementHasText(String xpath, String error_message, long timeoutInSeconds)
-    {
+
+    private WebElement waitForElementPresentByXPath(String xpath, String error_message, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.withMessage(error_message + "\n");
         By by = By.xpath(xpath);
@@ -71,21 +106,52 @@ public class FirstTest {
         );
     }
 
-    private WebElement assertElementHasText(String xpath, String error_message)
-    {
-        return assertElementHasText(xpath, error_message, 5);
+    private WebElement waitForElementPresentByXPath(String xpath, String error_message) {
+        return waitForElementPresentByXPath(xpath, error_message, 5);
     }
 
-    private WebElement waitForElementByXPathAndClick(String xpath, String error_message, long timeoutInSeconds)
-    {
-        WebElement element = assertElementHasText(xpath, error_message, timeoutInSeconds);
+    private WebElement waitForElementByXPathAndClick(String xpath, String error_message, long timeoutInSeconds) {
+        WebElement element = waitForElementPresentByXPath(xpath, error_message, timeoutInSeconds);
         element.click();
         return element;
     }
-    private WebElement waitForElementByXPathAndSendKeys(String xpath, String value, String error_message, long timeoutInSeconds)
-    {
-        WebElement element = assertElementHasText(xpath, error_message, timeoutInSeconds);
+
+    private WebElement waitForElementByXPathAndSendKeys(String xpath, String value, String error_message, long timeoutInSeconds) {
+        WebElement element = waitForElementPresentByXPath(xpath, error_message, timeoutInSeconds);
         element.sendKeys(value);
         return element;
     }
+
+    private WebElement waitForElementPresentById(String id, String error_message, long timeoutInSeconds) {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.withMessage(error_message + "\n");
+        By by = By.id(id);
+        return wait.until(
+                ExpectedConditions.presenceOfElementLocated(by)
+        );
+    }
+
+    private WebElement waitForElementByIdAndClick(String id, String error_message, long timeoutInSeconds) {
+        WebElement element = waitForElementPresentById(id, error_message, timeoutInSeconds);
+        element.click();
+        return element;
+    }
+
+    private WebElement waitForElementByIdAndSendKeys(String id, String value, String error_message, long timeoutInSeconds)
+    {
+        WebElement element = waitForElementPresentByXPath(id, error_message, timeoutInSeconds);
+        element.sendKeys(value);
+        return element;
+    }
+
+    private boolean waitForElementNotPresent(String id, String error_message, long timeoutInSeconds)
+    {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.withMessage(error_message + "\n");
+        By by = By.id(id);
+        return wait.until(
+                ExpectedConditions.invisibilityOfElementLocated(by)
+        );
+    }
+
 }
