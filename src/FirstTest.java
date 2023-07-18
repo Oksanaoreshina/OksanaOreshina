@@ -1,5 +1,6 @@
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.After;
@@ -14,6 +15,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class FirstTest {
     private AppiumDriver driver;
@@ -356,6 +359,117 @@ public class FirstTest {
 
         }
 
+        @Test
+        public void testAmountOfNotEmptySearch()
+        {
+            waitForElementAndClick(
+                    By.xpath("//*[contains(@text,'Skip')]"),
+                    "Cannot find Skip",
+                    5
+            );
+
+            waitForElementAndClick(
+                    By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+                    "Cannot find Search Wikipedia",
+                    5
+            );
+
+            String search_line = "Linkin Park discography";
+            waitForElementAndSendKeys(
+                    By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+                    search_line,
+                    "Cannot find search input",
+                    10
+            );
+
+            String search_result_locator = "//*[@resource-id = 'org.wikipedia:id/search_results_list']";
+            waitForElementPresent(
+                    By.xpath(search_result_locator),
+                    "Cannot find anything by the request" + search_line,
+                    15
+            );
+
+            int amount_of_search_results = getAmountOfElements(
+                    By.xpath(search_result_locator)
+            );
+
+            Assert.assertTrue(
+                    "We found too few results!",
+                    amount_of_search_results > 0
+            );
+        }
+
+        @Test
+        public void testAmountOfEmptySearch()
+        {
+            waitForElementAndClick(
+                    By.xpath("//*[contains(@text,'Skip')]"),
+                    "Cannot find Skip",
+                    5
+            );
+
+            waitForElementAndClick(
+                    By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+                    "Cannot find Search Wikipedia",
+                    5
+            );
+
+            String search_line = "gggiuy";
+            waitForElementAndSendKeys(
+                    By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+                    search_line,
+                    "Cannot find search input",
+                    10
+            );
+
+            String search_result_locator = "//*[@resource-id = 'org.wikipedia:id/search_results_list']";
+            String empty_result_label = "//*[@text = 'No results']";
+            waitForElementPresent(
+                    By.xpath(empty_result_label),
+                    "Cannot find empty result label by the request" + search_line,
+                    15
+            );
+
+            assertElementNotPresent(
+                    By.xpath(search_result_locator),
+                    "We've hound some results by request " + search_line
+            );
+        }
+
+        @Test
+        public void assertTitlePresent(){
+            waitForElementAndClick(
+                    By.xpath("//*[contains(@text,'Skip')]"),
+                    "Cannot find Skip",
+                    5
+            );
+
+            waitForElementAndClick(
+                    By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+                    "Cannot find Search Wikipedia",
+                    5
+            );
+
+            String search_line = "Linkin Park discography";
+            waitForElementAndSendKeys(
+                    By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+                    search_line,
+                    "Cannot find search input",
+                    10
+            );
+
+            waitForElementAndClick(
+                    By.xpath("//*[contains(@text,'Linkin Park discography')]"),
+                    "Cannot find 'Linkin Park discography' by search",
+                    5
+            );
+
+            assertElementPresent(driver,
+                    By.xpath("//*[contains(@text,'Linkin Park discography')]"),
+                    "Элемент с текстом не найден.");
+
+        }
+
     private WebElement waitForElementPresent(By by, String error_message, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.withMessage(error_message + "\n");
@@ -440,5 +554,29 @@ public class FirstTest {
                 .release()
                 .perform();
     }
+
+    private int getAmountOfElements(By by)
+    {
+        List elements  = driver.findElements(by);
+        return elements.size();
+    }
+
+    private void assertElementNotPresent(By by, String error_message)
+    {
+        int amount_of_elements = getAmountOfElements(by);
+        if (amount_of_elements > 0) {
+            String default_message = "An Element '" + by.toString() + "' supposed to be not present";
+            throw new AssertionError(default_message + " " + error_message);
+        }
+    }
+
+    private static void assertElementPresent(AppiumDriver<MobileElement> driver, By by, String errorMessage) {
+        try {
+            driver.findElement(by);
+        } catch (NoSuchElementException e) {
+            Assert.fail(errorMessage);
+        }
+    }
+
 
 }
