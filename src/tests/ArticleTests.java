@@ -11,8 +11,8 @@ import org.junit.Test;
 public class ArticleTests extends CoreTestCase {
     @Test
     @Features(value = {@Feature(value="search"), @Feature(value="Article")})
-    @DisplayName("Compare Article title with expected one")
-    @Description("We open 'Object-oriented programming language' and make sure the title is exist ")
+    @DisplayName("Compare article title with expected one")
+    @Description("We open 'Java Object-oriented programming language' article and make sure the title is expected ")
     @Step("Start test testCompareArticleTitle")
     @Severity(value = SeverityLevel.BLOKER)
     public void testCompareArticleTitle()
