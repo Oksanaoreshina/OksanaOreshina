@@ -1,33 +1,34 @@
 package lib;
 
 import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.android.AndroidDriver;
 import junit.framework.TestCase;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
-import java.net.URL;
 
-public class CoreTestCase extends TestCase {
-    protected AppiumDriver driver;
-    private static String AppiumURL = "http://127.0.0.1:4723/wd/hub";
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("platformName", "Android");
-        capabilities.setCapability("deviceName", "AndroidTestDevice");
-        capabilities.setCapability("platformVersion", "8.0");
-        capabilities.setCapability("automationName", "Appium");
-        capabilities.setCapability("appPackage", "org.wikipedia");
-        capabilities.setCapability("appActivity", ".main.MainActivity");
-        capabilities.setCapability("app", "C:/Users/79651/Desktop/javaAppiumAvtomation/javaAppiumAvtomation/apks/org.wikipedia_50444_apps.evozi.com.apk");
-
-        driver = new AndroidDriver(new URL(AppiumURL), capabilities);
+public class CoreTestCase  {
+    protected RemoteWebDriver driver;
+    protected Platform Platform;
+    @Before
+    @Step("Run driver and session")
+    public void setUp() throws Exception {
+        driver = Platform.getInstance().getDriver();
     }
-@Override
-    protected void tearDown() throws Exception {
+    @After
+    @Step("Remove driver and session")
+    public void tearDown()  {
         driver.quit();
-        super.tearDown();
+        this.openWikiWebPageForMobileWeb();
     }
+
+    @Step("Open wikipedia URL for Mobile Web (this method does nothing for IOS and Android)")
+    protected void openWikiWebPageForMobileWeb()
+    {
+        if(Platform.getInstance().isMW())
+        {
+            driver.get("https://en.m.wikipedia.org");
+        } else {
+            System.out.println("Method openWikiWebPageForMobileWeb() do nothing for platform" + Platform.getInstance().getPlatformVar());
+        }
+    }
+
 }

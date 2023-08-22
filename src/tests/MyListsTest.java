@@ -1,7 +1,9 @@
 package tests;
 
+import com.sun.org.glassfish.gmbal.Description;
 import lib.CoreTestCase;
 import lib.ui.*;
+import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 
@@ -12,6 +14,11 @@ public class MyListsTest extends CoreTestCase {
     password = "Oksana777*";
 
     @Test
+    @Features(value = {@Feature(value="Search"), @Feature(value="Article")})
+    @DisplayName("Add article to lists and delete it")
+    @Description("Add an article to my list and delete it, after to find out an article is deleted")
+    @Step("Start test testSaveArticleToMyList")
+    @Severity(value = SeverityLevel.MINOR)
     public void testSaveArticleToMyList() {
 
         SearchPageObject SearchPageObject = new SearchPageObject(driver);
@@ -37,7 +44,7 @@ public class MyListsTest extends CoreTestCase {
             Auth.submitForm();
             ArticlePageObject.waitForTitleElement();
 
-            assertEquals("We are not the same page after login", article_title, ArticlePageObject.getArticleTitle());
+            Assert.assertEquals("We are not the same page after login", article_title, ArticlePageObject.getArticleTitle());
 
             ArticlePageObject.addArticlesToMySaved();
         }
